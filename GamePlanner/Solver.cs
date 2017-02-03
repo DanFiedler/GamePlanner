@@ -34,8 +34,7 @@ namespace GamePlanner
             List<Player> playerList = new List<Player>(players);
 
             // phase 1 - create initial assignments
-            //var assignments = CreateInitialAssignments(potentialGames, players);
-            var assignments = CreateInitialAssignmentsNEW(potentialGames, players);
+            var assignments = CreateInitialAssignments(potentialGames, players);
             foreach ( var a in assignments )
             {
                 Debug.WriteLine("Initial Assignment: " + a.ToString());
@@ -45,12 +44,15 @@ namespace GamePlanner
                 throw new ArgumentException("Failed to assign all players to games in phase one. Remaining player count:" + players.Count);
             }
 
+
             // phase 2 - foreach player, does a better match exist, if so switch to that game
             for (int i = 0; i < playerList.Count; i++)
             {
                 if (!PerformRotations(assignments, playerList))
                     break;
             }
+
+
             // phase 3 - ensure each assignment is valid
             FixInvalidGames(assignments);
 
@@ -67,40 +69,8 @@ namespace GamePlanner
             return solution;
         }
 
+
         private static List<Assignment> CreateInitialAssignments(List<Game> potentialGames, List<Player> players)
-        {
-            var assignments = new Dictionary<int, Assignment>();
-            foreach (var game in potentialGames)
-            {
-                for (int p = 0; p < players.Count; p++)
-                {
-                    Player player = players[p];
-                    if (player.HasPreferenceForGame(game))
-                    {
-                        Assignment assignment;
-                        if (assignments.TryGetValue(game.Id, out assignment))
-                        {
-                            if (assignment.CanAddPlayer())
-                            {
-                                AssignPlayer(players, player, assignment);
-                                p--;
-                            }
-                        }
-                        else
-                        {
-                            assignment = new Assignment(game);
-                            AssignPlayer(players, player, assignment);
-                            p--;
-                            assignments[game.Id] = assignment;
-                        }
-                    }
-                }
-            }
-
-            return new List<Assignment>(assignments.Values);
-        }
-
-        private static List<Assignment> CreateInitialAssignmentsNEW(List<Game> potentialGames, List<Player> players)
         {
             var assignments = new Dictionary<int, Assignment>();
             foreach (var game in potentialGames)
@@ -152,7 +122,7 @@ namespace GamePlanner
                         var potentialSwaps = assignments.Where(a => a.Game.Id == p.Game.Id);
                         foreach( var swap in potentialSwaps )
                         {
-                            Rotation rotation = IdentifyRotationNEW(player, swap);
+                            Rotation rotation = IdentifyRotation(player, swap);
 
                             result = rotation.RotationType != RotationType.NoRotationPossible;
 
@@ -190,7 +160,7 @@ namespace GamePlanner
         }
 
 
-        private static Rotation IdentifyRotationNEW(Player player, Assignment swap)
+        private static Rotation IdentifyRotation(Player player, Assignment swap)
         {
             if (swap.CanAddPlayer())
             {
@@ -212,30 +182,7 @@ namespace GamePlanner
 
             return Rotation.NoRotation;
         }
-
-
-        private static Rotation IdentifyRotation(Player player, Assignment swap)
-        {
-            if( player.Assignment.CanLosePlayer() && swap.CanAddPlayer() )
-            {
-                return new Rotation(RotationType.MovePlayer);
-            }
-            else  
-            {
-                foreach( var p in swap.Players )
-                {
-                    if(p.PrefersGameOverCurrentAssignment(player.Assignment.Game))
-                    {
-                        return new Rotation(RotationType.TradePlayers)
-                        {
-                            PlayerTwo = p
-                        };                        
-                    }
-                }
-            }
-
-            return Rotation.NoRotation;
-        }
+        
 
         private static void FixInvalidGames(List<Assignment> assignments)
         {
