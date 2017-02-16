@@ -15,6 +15,18 @@ namespace GamePlanner.Model
         public Game Game { get; set; }
         public List<Player> Players { get; set; }
 
+        private double _totalSatisfaction;
+        public double TotalSatisfaction
+        {
+            get
+            {
+                if (_totalSatisfaction == 0)
+                    _totalSatisfaction = Players.Sum(p => p.Satisfaction);
+
+                return _totalSatisfaction;
+            }
+        }
+
         public bool IsValid()
         {
             if (Players.Count < Game.MinPlayer)

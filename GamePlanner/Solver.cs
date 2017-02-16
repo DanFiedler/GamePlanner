@@ -195,6 +195,61 @@ namespace GamePlanner
                     i--;
                 }
             }
+
+            assignments.Sort((x, y) => x.TotalSatisfaction.CompareTo(y.TotalSatisfaction));
+            assignments.Reverse();
+
+            for(int i = 0; i < assignments.Count; i++)
+            {                
+                Assignment a = assignments[i];
+                if (!a.IsValid())
+                {
+                    var unassignedPlayers = new List<Player>();
+
+                    Debug.WriteLine("Removing Players from Invalid Assignment: " + a.ToString());
+                    foreach (var p in a.Players)
+                    {
+                        p.Assignment = null;
+                        unassignedPlayers.Add(p);
+                    }
+
+                    assignments.Remove(a);
+                    i--;
+
+                    for (int j = i; j < assignments.Count; j++ )
+                    {
+                        Assignment potentialNewAssignment = assignments[j];
+                        for (int p = 0; p < unassignedPlayers.Count; p++)
+                        {
+                            Player unassigned = unassignedPlayers[p];
+                            if (potentialNewAssignment.CanAddPlayer() 
+                                && unassigned.HasPreferenceForGame(potentialNewAssignment.Game))
+                            {
+                                Debug.WriteLine("Moving unassigned player '{0}' to preferred game:{1}", unassigned.Name, potentialNewAssignment.Game );
+
+                                potentialNewAssignment.Players.Add(unassigned);
+                                unassigned.Assignment = potentialNewAssignment;
+                                unassignedPlayers.Remove(unassigned);
+                                p--;
+                            }
+                        }
+                    }
+                    
+                    foreach( Player p in unassignedPlayers )
+                    {
+                        foreach( var assignment in assignments )
+                        {
+                            if( assignment.CanAddPlayer())
+                            {
+                                Debug.WriteLine("Moving unsatisfied player '{0}' to game:{1} (sorry!)", p.Name, assignment.Game);
+                                assignment.Players.Add(p);
+                                p.Assignment = assignment;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
 

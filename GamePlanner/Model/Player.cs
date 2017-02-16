@@ -18,12 +18,19 @@ namespace GamePlanner.Model
             set
             {
                 _assignment = value;
-                foreach(var p in Preferences )
+                if (_assignment == null)
                 {
-                    if( p.Game.Id == _assignment.Game.Id)
+                    Satisfaction = 0;
+                }
+                else
+                {
+                    foreach (var p in Preferences)
                     {
-                        Satisfaction = p.Weight;
-                        break;
+                        if (p.Game.Id == _assignment.Game.Id)
+                        {
+                            Satisfaction = p.Weight;
+                            break;
+                        }
                     }
                 }
             }
