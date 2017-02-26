@@ -112,6 +112,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\EventController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
+    <Compile Include="Data\DbInitializer.cs" />
     <Compile Include="Data\GamePlannerContext.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -121,6 +122,7 @@
   <ItemGroup>
     <Content Include="packages.config" />
     <Content Include="ConnStrings.config" />
+    <None Include="Properties\PublishProfiles\LocalWeb.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
