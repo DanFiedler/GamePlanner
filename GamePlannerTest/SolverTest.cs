@@ -19,15 +19,19 @@ namespace GamePlannerTest
             new Game() {Id = 6, MinPlayer = 2, MaxPlayer = 4, Name = "Dominion" }
         };
 
+        private const double PrefOneWeight = 0.53;
+        private const double PrefTwoWeight = 0.33;
+        private const double PrefThreeWeight = 0.13;
+
         private static List<Preference> _prefersCarcassonne = new List<Preference>()
-            {   new Preference( _gameLibrary[0], 0.7),
-                new Preference( _gameLibrary[1], 0.2),
-                new Preference( _gameLibrary[2], 0.1) };
+            {   new Preference( _gameLibrary[0], PrefOneWeight),
+                new Preference( _gameLibrary[1], PrefTwoWeight),
+                new Preference( _gameLibrary[2], PrefThreeWeight) };
 
         private static List<Preference> _prefersSplendor = new List<Preference>()
-            {   new Preference( _gameLibrary[1], 0.7),
-                new Preference( _gameLibrary[2], 0.2),
-                new Preference( _gameLibrary[0], 0.1) };
+            {   new Preference( _gameLibrary[1], PrefOneWeight),
+                new Preference( _gameLibrary[2], PrefTwoWeight),
+                new Preference( _gameLibrary[0], PrefThreeWeight) };
 
 
         private List<Player> CreateSixPlayerList()
@@ -57,19 +61,19 @@ namespace GamePlannerTest
             return solution;
         }
 
-        [TestMethod]
-        public void Shuffle()
-        {
-            int id = 1;
-            var players = new List<Player>()
-            {
-                new Player(id++,"Dan"), new Player(id++,"Erica"), new Player(id++,"Nicholas"), new Player(id++,"Anne"),
-                new Player(id++,"Stephen"), new Player(id++,"Heidi"), new Player(id++,"Abe"), new Player(id++,"Kathleen")
-            };
-            var shuffledPlayers = new List<Player>(players);
-            Solver.Shuffle(players);
-            Assert.AreNotEqual(shuffledPlayers[0].Name, players[0].Name);
-        }
+        //[TestMethod]
+        //public void Shuffle()
+        //{
+        //    int id = 1;
+        //    var players = new List<Player>()
+        //    {
+        //        new Player(id++,"Dan"), new Player(id++,"Erica"), new Player(id++,"Nicholas"), new Player(id++,"Anne"),
+        //        new Player(id++,"Stephen"), new Player(id++,"Heidi"), new Player(id++,"Abe"), new Player(id++,"Kathleen")
+        //    };
+        //    var shuffledPlayers = new List<Player>(players);
+        //    Solver.Shuffle(players);
+        //    Assert.AreNotEqual(shuffledPlayers[0].Name, players[0].Name);
+        //}
 
 
         [TestMethod]
@@ -90,7 +94,7 @@ namespace GamePlannerTest
             var solution = FindSolutionForPlayers(players, shuffle);
             Assert.IsTrue(solution.IsValid());
 
-            var weightList = new List<double> { 0.7, 0.7, 0.7, 0.7, 0.7, 0.7 };
+            var weightList = new List<double> { PrefOneWeight, PrefOneWeight, PrefOneWeight, PrefOneWeight, PrefOneWeight, PrefOneWeight };
             double expectedTotal = weightList.Sum();
             double expectedAvg = weightList.Average();
             Assert.AreEqual(expectedTotal, solution.TotalSatisfaction);
@@ -133,7 +137,7 @@ namespace GamePlannerTest
             var solution = FindSolutionForPlayers(players, false);
             Assert.IsTrue(solution.IsValid());
 
-            var weightList = new List<double> { 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7 };
+            var weightList = new List<double> { PrefOneWeight, PrefOneWeight, PrefOneWeight, PrefOneWeight, PrefOneWeight, PrefOneWeight, PrefOneWeight, PrefOneWeight };
             double expectedTotal = weightList.Sum();
             double expectedAvg = weightList.Average();
             Assert.AreEqual(expectedTotal, solution.TotalSatisfaction);
@@ -149,9 +153,9 @@ namespace GamePlannerTest
             {
                 Preferences = new List<Preference>()
                 {
-                    new Preference(_gameLibrary[3], 0.6),
-                    new Preference(_gameLibrary[4], 0.3),
-                    new Preference(_gameLibrary[5], 0.1)
+                    new Preference(_gameLibrary[3], PrefOneWeight),
+                    new Preference(_gameLibrary[4], PrefTwoWeight),
+                    new Preference(_gameLibrary[5], PrefThreeWeight)
                 }
             });
 
