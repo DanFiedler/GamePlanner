@@ -1,31 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace GamePlanner.Model
+namespace GamePlannerModel
 {
-    public class Assignment
+    public class GameAssignment
     {
-        public Assignment(Game game)
-        {
-            Game = game;
-            Players = new List<Player>();
-        }
-
+        public int ID { get; set; }
+        public Event Event { get; set; }
         public Game Game { get; set; }
-        public List<Player> Players { get; set; }
+        public ICollection<EventRegistration> Players {get;set;}
 
-        private double _totalSatisfaction;
-        public double TotalSatisfaction
-        {
-            get
-            {
-                if (_totalSatisfaction == 0)
-                    _totalSatisfaction = Players.Sum(p => p.Satisfaction);
-
-                return _totalSatisfaction;
-            }
-        }
 
         public bool IsValid()
         {
@@ -52,15 +36,28 @@ namespace GamePlanner.Model
         {
             var sb = new System.Text.StringBuilder(Game.Name);
             sb.Append("{");
-            for(int i = 0; i < Players.Count; i++)
+
+            int i = 0;
+            foreach( var player in Players )
             {
                 if (i != 0)
                     sb.Append(",");
 
-                sb.Append(Players[i].Name);
+                sb.Append(player.User.Name);
+                i++;
             }
+
             sb.Append("}");
             return sb.ToString();
+        }
+
+        private double _totalSatisfaction;
+        public double GetTotalSatisfaction()
+        {
+            if (_totalSatisfaction == 0)
+                _totalSatisfaction = Players.Sum(p => p.Satisfaction);
+
+            return _totalSatisfaction;
         }
     }
 }

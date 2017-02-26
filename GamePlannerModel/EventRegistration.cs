@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace GamePlanner.Model
+namespace GamePlannerModel
 {
-    public class Player
+    public class EventRegistration
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        
-        public List<Preference> Preferences { get; set; }
-        public double Satisfaction { get; private set; }
+        public int ID { get; set; }
+        public Event Event { get; set; }
+        public User User { get; set; }
+        public ICollection<Preference> Preferences { get; set; }
 
-        private Assignment _assignment;
-        public Assignment Assignment
+        public double Satisfaction { get; set; }
+
+        private GameAssignment _assignment;
+        public GameAssignment Assignment
         {
             get { return _assignment; }
             set
@@ -26,7 +27,7 @@ namespace GamePlanner.Model
                 {
                     foreach (var p in Preferences)
                     {
-                        if (p.Game.Id == _assignment.Game.Id)
+                        if (p.Game.ID == _assignment.Game.ID)
                         {
                             Satisfaction = p.Weight;
                             break;
@@ -35,30 +36,26 @@ namespace GamePlanner.Model
                 }
             }
         }
-        public Player(int id, string name)
-        {
-            Id = id;
-            Name = name;
-            Preferences = new List<Preference>();
-        }
 
-        public Player(int id, string name, List<Preference> preferences)
+
+        public EventRegistration() { }
+        public EventRegistration(string name, ICollection<Preference> prefs)
         {
-            Id = id;
-            Name = name;
-            Preferences = preferences;
+            User = new User();
+            User.Name = name;
+            Preferences = prefs;
         }
 
         public bool HasPreferenceForGame(Game game)
         {
-            return Preferences.Any(p => p.Game.Id == game.Id);
+            return Preferences.Any(p => p.Game.ID == game.ID);
         }
 
         public bool PrefersGameOverCurrentAssignment(Game game)
         {
-            foreach( var p in Preferences )
+            foreach (var p in Preferences)
             {
-                if( p.Game.Id == game.Id )
+                if (p.Game.ID == game.ID)
                 {
                     if (p.Weight > Satisfaction)
                         return true;
@@ -72,7 +69,7 @@ namespace GamePlanner.Model
 
         public override string ToString()
         {
-            return Name;
+            return User.Name;
         }
     }
 }

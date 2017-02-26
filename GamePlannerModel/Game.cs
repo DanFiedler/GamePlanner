@@ -1,9 +1,8 @@
-﻿
-namespace GamePlanner.Model
+﻿namespace GamePlannerModel
 {
     public class Game
     {
-        public int Id { get; set; }
+        public int ID { get; set; }
         public string Name { get; set; }
         public int MinPlayer { get; set; }
         public int MaxPlayer { get; set; }

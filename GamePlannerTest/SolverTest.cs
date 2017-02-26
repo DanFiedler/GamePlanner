@@ -1,8 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GamePlanner.Model;
 using System.Collections.Generic;
 using GamePlanner;
 using System.Linq;
+using GamePlannerModel;
 
 namespace GamePlannerTest
 {
@@ -11,12 +11,12 @@ namespace GamePlannerTest
     {
         private static List<Game> _gameLibrary = new List<Game>()
         {
-            new Game() {Id = 1, MinPlayer = 2, MaxPlayer = 5, Name = "Carcassonne" },
-            new Game() {Id = 2, MinPlayer = 2, MaxPlayer = 4, Name = "Splendor" },
-            new Game() {Id = 3, MinPlayer = 2, MaxPlayer = 4, Name = "Through The Desert" },
-            new Game() {Id = 4, MinPlayer = 3, MaxPlayer = 5, Name = "Settlers of Catan" },
-            new Game() {Id = 5, MinPlayer = 2, MaxPlayer = 4, Name = "Race for the Galaxy" },
-            new Game() {Id = 6, MinPlayer = 2, MaxPlayer = 4, Name = "Dominion" }
+            new Game() {ID = 1, MinPlayer = 2, MaxPlayer = 5, Name = "Carcassonne" },
+            new Game() {ID = 2, MinPlayer = 2, MaxPlayer = 4, Name = "Splendor" },
+            new Game() {ID = 3, MinPlayer = 2, MaxPlayer = 4, Name = "Through The Desert" },
+            new Game() {ID = 4, MinPlayer = 3, MaxPlayer = 5, Name = "Settlers of Catan" },
+            new Game() {ID = 5, MinPlayer = 2, MaxPlayer = 4, Name = "Race for the Galaxy" },
+            new Game() {ID = 6, MinPlayer = 2, MaxPlayer = 4, Name = "Dominion" }
         };
 
         private const double PrefOneWeight = 0.53;
@@ -34,21 +34,20 @@ namespace GamePlannerTest
                 new Preference( _gameLibrary[0], PrefThreeWeight) };
 
 
-        private List<Player> CreateSixPlayerList()
+        private List<EventRegistration> CreateSixPlayerList()
         {
-            int id = 1;
-            var players = new List<Player>();
-            players.Add(new Player(id++, "Alice", _prefersCarcassonne));
-            players.Add(new Player(id++, "Bob", _prefersCarcassonne));
-            players.Add(new Player(id++, "Eve", _prefersCarcassonne));
-            players.Add(new Player(id++, "Dan", _prefersSplendor));
-            players.Add(new Player(id++, "Erica", _prefersSplendor));
-            players.Add(new Player(id++, "Nicholas", _prefersSplendor));
+            var players = new List<EventRegistration>();
+            players.Add(new EventRegistration("Alice", _prefersCarcassonne));
+            players.Add(new EventRegistration("Bob", _prefersCarcassonne));
+            players.Add(new EventRegistration("Eve", _prefersCarcassonne));
+            players.Add(new EventRegistration("Dan", _prefersSplendor));
+            players.Add(new EventRegistration("Erica", _prefersSplendor));
+            players.Add(new EventRegistration("Nicholas", _prefersSplendor));
 
             return players;
         }
 
-        private Solution FindSolutionForPlayers(List<Player> players, bool shuffle)
+        private Solution FindSolutionForPlayers(List<EventRegistration> players, bool shuffle)
         {
             var gameNight = new Event();
             gameNight.GameOptions = _gameLibrary;
@@ -106,15 +105,15 @@ namespace GamePlannerTest
                 Assert.AreEqual(3, assignment.Players.Count);
                 if (assignment.Game.Name == "Splendor")
                 {
-                    Assert.IsTrue(assignment.Players.Find(p => p.Name == "Dan") != null);
-                    Assert.IsTrue(assignment.Players.Find(p => p.Name == "Erica") != null);
-                    Assert.IsTrue(assignment.Players.Find(p => p.Name == "Nicholas") != null);
+                    Assert.IsTrue(assignment.Players.Where(p => p.User.Name == "Dan") != null);
+                    Assert.IsTrue(assignment.Players.Where(p => p.User.Name == "Erica") != null);
+                    Assert.IsTrue(assignment.Players.Where(p => p.User.Name == "Nicholas") != null);
                 }
                 else if (assignment.Game.Name == "Carcassonne")
                 {
-                    Assert.IsTrue(assignment.Players.Find(p => p.Name == "Alice") != null);
-                    Assert.IsTrue(assignment.Players.Find(p => p.Name == "Bob") != null);
-                    Assert.IsTrue(assignment.Players.Find(p => p.Name == "Eve") != null);
+                    Assert.IsTrue(assignment.Players.Where(p => p.User.Name == "Alice") != null);
+                    Assert.IsTrue(assignment.Players.Where(p => p.User.Name == "Bob") != null);
+                    Assert.IsTrue(assignment.Players.Where(p => p.User.Name == "Eve") != null);
                 }
             }
 
@@ -123,16 +122,15 @@ namespace GamePlannerTest
         [TestMethod]
         public void EightPlayersNeedSwaps()
         {
-            int id = 1;
-            var players = new List<Player>();
-            players.Add(new Player(id++, "Alice", _prefersCarcassonne));
-            players.Add(new Player(id++, "Dan", _prefersSplendor));
-            players.Add(new Player(id++, "Bob", _prefersCarcassonne));
-            players.Add(new Player(id++, "Erica", _prefersSplendor));
-            players.Add(new Player(id++, "Eve", _prefersCarcassonne));
-            players.Add(new Player(id++, "Nicholas", _prefersSplendor));
-            players.Add(new Player(id++, "Frank", _prefersCarcassonne));
-            players.Add(new Player(id++, "George", _prefersCarcassonne));
+            var players = new List<EventRegistration>();
+            players.Add(new EventRegistration("Alice", _prefersCarcassonne));
+            players.Add(new EventRegistration("Dan", _prefersSplendor));
+            players.Add(new EventRegistration("Bob", _prefersCarcassonne));
+            players.Add(new EventRegistration("Erica", _prefersSplendor));
+            players.Add(new EventRegistration("Eve", _prefersCarcassonne));
+            players.Add(new EventRegistration("Nicholas", _prefersSplendor));
+            players.Add(new EventRegistration("Frank", _prefersCarcassonne));
+            players.Add(new EventRegistration("George", _prefersCarcassonne));
 
             var solution = FindSolutionForPlayers(players, false);
             Assert.IsTrue(solution.IsValid());
@@ -148,16 +146,13 @@ namespace GamePlannerTest
         public void SevenPlayersTwoGamesEnsureValidity()
         {
             var players = CreateSixPlayerList();
-            int id = players[players.Count - 1].Id;
-            players.Add(new Player(id, "Unhappy")
-            {
-                Preferences = new List<Preference>()
+            players.Add(new EventRegistration("Unhappy", 
+                new List<Preference>()
                 {
                     new Preference(_gameLibrary[3], PrefOneWeight),
                     new Preference(_gameLibrary[4], PrefTwoWeight),
                     new Preference(_gameLibrary[5], PrefThreeWeight)
-                }
-            });
+                }));
 
             var solution = FindSolutionForPlayers(players,false);
             Assert.IsTrue(solution.IsValid());
@@ -167,15 +162,15 @@ namespace GamePlannerTest
             {
                 if (assignment.Game.Name == "Splendor")
                 {
-                    Assert.IsTrue(assignment.Players.Find(p => p.Name == "Dan") != null);
-                    Assert.IsTrue(assignment.Players.Find(p => p.Name == "Erica") != null);
-                    Assert.IsTrue(assignment.Players.Find(p => p.Name == "Nicholas") != null);
+                    Assert.IsTrue(assignment.Players.Where(p => p.User.Name == "Dan") != null);
+                    Assert.IsTrue(assignment.Players.Where(p => p.User.Name == "Erica") != null);
+                    Assert.IsTrue(assignment.Players.Where(p => p.User.Name == "Nicholas") != null);
                 }
                 else if (assignment.Game.Name == "Carcassonne")
                 {
-                    Assert.IsTrue(assignment.Players.Find(p => p.Name == "Alice") != null);
-                    Assert.IsTrue(assignment.Players.Find(p => p.Name == "Bob") != null);
-                    Assert.IsTrue(assignment.Players.Find(p => p.Name == "Eve") != null);
+                    Assert.IsTrue(assignment.Players.Where(p => p.User.Name == "Alice") != null);
+                    Assert.IsTrue(assignment.Players.Where(p => p.User.Name == "Bob") != null);
+                    Assert.IsTrue(assignment.Players.Where(p => p.User.Name == "Eve") != null);
                 }
             }
         }

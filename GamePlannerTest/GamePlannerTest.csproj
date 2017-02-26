@@ -54,6 +54,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\GamePlannerModel\GamePlannerModel.csproj">
+      <Project>{2AFA14A2-6C12-4AC7-AD4C-14E8FED799B7}</Project>
+      <Name>GamePlannerModel</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GamePlanner\GamePlanner.csproj">
       <Project>{5AD01504-5B21-4FD6-8F21-4FE040023DA4}</Project>
       <Name>GamePlanner</Name>

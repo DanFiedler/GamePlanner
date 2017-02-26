@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using GamePlannerModel;
 
-namespace GamePlanner.Model
+namespace GamePlanner
 {
     public enum RotationType
     {
@@ -20,6 +16,6 @@ namespace GamePlanner.Model
         public Rotation(RotationType type) { RotationType = type; }
         public RotationType RotationType { get; set; }
 
-        public Player PlayerTwo { get; set; }
+        public EventRegistration PlayerTwo { get; set; }
     }
 }

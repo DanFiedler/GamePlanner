@@ -201,3 +201,6 @@ packages/
 
 #Ignore Obfuscator directories
 /Obfuscator*/
+
+# GamePlanner
+ConnStrings.config

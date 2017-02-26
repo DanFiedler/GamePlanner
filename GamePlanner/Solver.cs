@@ -1,8 +1,8 @@
-﻿using GamePlanner.Model;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Diagnostics;
+using GamePlannerModel;
 
 namespace GamePlanner
 {
@@ -15,26 +15,27 @@ namespace GamePlanner
             var solutions = new List<Solution>();
 
             var potentialGames = CreateListOfPotentialGames(gameNight);
-            var players = new List<Player>(gameNight.Players);
 
-            Solution solution = CreateSolution(gameNight, potentialGames, players, shuffleLists);
+            Solution solution = CreateSolution(gameNight, potentialGames, shuffleLists);
             solutions.Add(solution);
 
             return solutions;
         }
 
-        private static Solution CreateSolution(Event gameNight, List<Game> potentialGames, List<Player> players, bool shuffleLists)
+        private static Solution CreateSolution(Event gameNight, List<Game> potentialGames, bool shuffleLists)
         {
             var solution = new Solution();
+            var players = new List<EventRegistration>(gameNight.Players);
+
             if (shuffleLists)
             {
                 Shuffle(potentialGames);
                 Shuffle(players);
             }
-            List<Player> playerList = new List<Player>(players);
+            var playerList = new List<EventRegistration>(players);
 
             // phase 1 - create initial assignments
-            var assignments = CreateInitialAssignments(potentialGames, players);
+            var assignments = CreateInitialAssignments(gameNight, potentialGames, players);
             foreach ( var a in assignments )
             {
                 Debug.WriteLine("Initial Assignment: " + a.ToString());
@@ -70,22 +71,22 @@ namespace GamePlanner
         }
 
 
-        private static List<Assignment> CreateInitialAssignments(List<Game> potentialGames, List<Player> players)
+        private static List<GameAssignment> CreateInitialAssignments(Event gameNight, List<Game> potentialGames, List<EventRegistration> players)
         {
-            var assignments = new Dictionary<int, Assignment>();
+            var assignments = new Dictionary<int, GameAssignment>();
             foreach (var game in potentialGames)
             {
-                assignments[game.Id] = new Assignment(game);
+                assignments[game.ID] = new GameAssignment() { Event = gameNight, Game = game, Players = new List<EventRegistration>() };
             }
 
             foreach (var game in potentialGames)
             {
                 for (int p = 0; p < players.Count; p++)
                 {
-                    Player player = players[p];
+                    EventRegistration player = players[p];
                     if (player.HasPreferenceForGame(game))
                     {
-                        var a = assignments[game.Id];
+                        var a = assignments[game.ID];
                         if( a.CanAddPlayer())
                         {
                             AssignPlayer(players, player, a);
@@ -95,11 +96,11 @@ namespace GamePlanner
                 }
             }
 
-            return new List<Assignment>(assignments.Values);
+            return new List<GameAssignment>(assignments.Values);
         }
 
 
-        private static bool PerformRotations(List<Assignment> assignments, List<Player> players)
+        private static bool PerformRotations(List<GameAssignment> assignments, List<EventRegistration> players)
         {
             bool result = false;
 
@@ -119,7 +120,7 @@ namespace GamePlanner
                     foreach (var p in higherPrefs)
                     {
                         bool swapped = false;
-                        var potentialSwaps = assignments.Where(a => a.Game.Id == p.Game.Id);
+                        var potentialSwaps = assignments.Where(a => a.Game.ID == p.Game.ID);
                         foreach( var swap in potentialSwaps )
                         {
                             Rotation rotation = IdentifyRotation(player, swap);
@@ -132,11 +133,11 @@ namespace GamePlanner
                                 swap.Players.Add(player);
                                 player.Assignment = swap;
 
-                                Debug.WriteLine("Rotation - Moved {0} to Game:{1}", player.Name, swap.Game.Name);                                
+                                Debug.WriteLine("Rotation - Moved {0} to Game:{1}", player.User.Name, swap.Game.Name);                                
                             }
                             else if( rotation.RotationType == RotationType.TradePlayers )
                             {
-                                Assignment originalAssignment = player.Assignment;
+                                GameAssignment originalAssignment = player.Assignment;
 
                                 player.Assignment.Players.Remove(player);
                                 swap.Players.Add(player);
@@ -146,7 +147,7 @@ namespace GamePlanner
                                 originalAssignment.Players.Add(rotation.PlayerTwo);
                                 rotation.PlayerTwo.Assignment = originalAssignment;
 
-                                Debug.WriteLine("Rotation - Traded {0} to Game:{1} and {2} to Game:{3}", player.Name, swap.Game.Name, rotation.PlayerTwo.Name, originalAssignment.Game.Name);
+                                Debug.WriteLine("Rotation - Traded {0} to Game:{1} and {2} to Game:{3}", player.User.Name, swap.Game.Name, rotation.PlayerTwo.User.Name, originalAssignment.Game.Name);
                             }
                         }
 
@@ -160,7 +161,7 @@ namespace GamePlanner
         }
 
 
-        private static Rotation IdentifyRotation(Player player, Assignment swap)
+        private static Rotation IdentifyRotation(EventRegistration player, GameAssignment swap)
         {
             if (swap.CanAddPlayer())
             {
@@ -184,11 +185,11 @@ namespace GamePlanner
         }
         
 
-        private static void FixInvalidGames(List<Assignment> assignments)
+        private static void FixInvalidGames(List<GameAssignment> assignments)
         {
             for(int i = 0; i < assignments.Count; i++)
             {
-                Assignment a = assignments[i];
+                GameAssignment a = assignments[i];
                 if( a.Players.Count == 0 )
                 {
                     assignments.Remove(a);
@@ -196,15 +197,15 @@ namespace GamePlanner
                 }
             }
 
-            assignments.Sort((x, y) => x.TotalSatisfaction.CompareTo(y.TotalSatisfaction));
+            assignments.Sort((x, y) => x.GetTotalSatisfaction().CompareTo(y.GetTotalSatisfaction()));
             assignments.Reverse();
 
             for(int i = 0; i < assignments.Count; i++)
             {                
-                Assignment a = assignments[i];
+                GameAssignment a = assignments[i];
                 if (!a.IsValid())
                 {
-                    var unassignedPlayers = new List<Player>();
+                    var unassignedPlayers = new List<EventRegistration>();
 
                     Debug.WriteLine("Removing Players from Invalid Assignment: " + a.ToString());
                     foreach (var p in a.Players)
@@ -218,14 +219,14 @@ namespace GamePlanner
 
                     for (int j = i; j < assignments.Count; j++ )
                     {
-                        Assignment potentialNewAssignment = assignments[j];
+                        GameAssignment potentialNewAssignment = assignments[j];
                         for (int p = 0; p < unassignedPlayers.Count; p++)
                         {
-                            Player unassigned = unassignedPlayers[p];
+                            EventRegistration unassigned = unassignedPlayers[p];
                             if (potentialNewAssignment.CanAddPlayer() 
                                 && unassigned.HasPreferenceForGame(potentialNewAssignment.Game))
                             {
-                                Debug.WriteLine("Moving unassigned player '{0}' to preferred game:{1}", unassigned.Name, potentialNewAssignment.Game );
+                                Debug.WriteLine("Moving unassigned player '{0}' to preferred game:{1}", unassigned.User.Name, potentialNewAssignment.Game );
 
                                 potentialNewAssignment.Players.Add(unassigned);
                                 unassigned.Assignment = potentialNewAssignment;
@@ -235,13 +236,13 @@ namespace GamePlanner
                         }
                     }
                     
-                    foreach( Player p in unassignedPlayers )
+                    foreach(EventRegistration p in unassignedPlayers )
                     {
                         foreach( var assignment in assignments )
                         {
                             if( assignment.CanAddPlayer())
                             {
-                                Debug.WriteLine("Moving unsatisfied player '{0}' to game:{1} (sorry!)", p.Name, assignment.Game);
+                                Debug.WriteLine("Moving unsatisfied player '{0}' to game:{1} (sorry!)", p.User.Name, assignment.Game);
                                 assignment.Players.Add(p);
                                 p.Assignment = assignment;
                                 break;
@@ -268,7 +269,7 @@ namespace GamePlanner
             solution.MeanSatisfaction = Mean(satisfactions);
         }
 
-        private static void AssignPlayer(List<Player> players, Player player, Assignment assignment)
+        private static void AssignPlayer(List<EventRegistration> players, EventRegistration player, GameAssignment assignment)
         {
             assignment.Players.Add(player);
             player.Assignment = assignment;
@@ -284,7 +285,7 @@ namespace GamePlanner
             {
                 foreach( var pref in player.Preferences )
                 {
-                    gameSet[pref.Game.Id] = pref.Game;
+                    gameSet[pref.Game.ID] = pref.Game;
                 }
             }
 
