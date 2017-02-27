@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamePlannerAPI", "GamePlann
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamePlannerModel", "GamePlannerModel\GamePlannerModel.csproj", "{2AFA14A2-6C12-4AC7-AD4C-14E8FED799B7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamePlannerWeb", "GamePlannerWeb\GamePlannerWeb.csproj", "{C4CBED78-719A-4BAF-B700-0C2FCD98E3E6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{2AFA14A2-6C12-4AC7-AD4C-14E8FED799B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2AFA14A2-6C12-4AC7-AD4C-14E8FED799B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2AFA14A2-6C12-4AC7-AD4C-14E8FED799B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4CBED78-719A-4BAF-B700-0C2FCD98E3E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4CBED78-719A-4BAF-B700-0C2FCD98E3E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4CBED78-719A-4BAF-B700-0C2FCD98E3E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4CBED78-719A-4BAF-B700-0C2FCD98E3E6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
