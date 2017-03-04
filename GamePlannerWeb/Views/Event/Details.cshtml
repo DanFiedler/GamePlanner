@@ -1,0 +1,53 @@
+﻿@model GamePlannerWeb.Models.EventModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>View</title>
+</head>
+<body>
+    <div>
+        <h4>EventModel</h4>
+        <hr />
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.Title)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.Title)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.Date)
+            </dt>
+    
+            <dd>
+                @Html.DisplayFor(model => model.Date)
+            </dd>
+    
+            <dt>
+                @Html.DisplayNameFor(model => model.WorkLog)
+            </dt>            
+            <dd>
+                @Html.DisplayFor(model => model.GameOptions)
+            </dd>
+            <dd>
+                @Html.DisplayFor(model => model.WorkLog)
+            </dd>
+        </dl>
+    </div>
+    <p>
+        @Html.ActionLink("Edit", "Edit", new { id = Model.ID }) |
+        @Html.ActionLink("Add Games via Import", "ImportGames", new { id = Model.ID }) |
+        @Html.ActionLink("Add Game", "AddGame", new { id = Model.ID }) |
+        @Html.ActionLink("Back to List", "Index") |
+    </p>
+</body>
+</html>

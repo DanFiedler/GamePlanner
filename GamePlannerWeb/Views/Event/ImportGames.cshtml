@@ -1,0 +1,45 @@
+﻿@model GamePlannerWeb.Models.EventModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Import Board Game Geek Library</title>
+</head>
+<body>
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
+    
+    @ViewBag.Message
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-horizontal">
+            @Html.HiddenFor(model => model.ID)
+            <div>
+                <div class="form-group">
+                    <div class="control-label col-md-2">
+                        <label>BoardGameGeek Username:</label>
+                    </div>
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="text" name="bggUserName" value="" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" value="Import BGG Library" class="btn btn-default" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</body>
+</html>

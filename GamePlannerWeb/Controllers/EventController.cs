@@ -3,6 +3,7 @@ using Microsoft.Rest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 
@@ -10,9 +11,7 @@ namespace GamePlannerWeb.Controllers
 {
     public class EventController : Controller
     {
-        private GamePlannerWebClient _api = new GamePlannerWebClient(
-            new TokenCredentials("foo")
-            );
+        private IGamePlannerWebClient _api = Util.ApiUtil.GetClient();
 
         // GET: Event
         public ActionResult Index()
@@ -95,6 +94,44 @@ namespace GamePlannerWeb.Controllers
             catch
             {
                 return View();
+            }
+        }
+
+        public ActionResult ImportGames(int id)
+        {
+            return View( new EventModel() { ID = id });            
+        }
+
+        [HttpPost]
+        public void ImportGames(int id, string bggUserName )
+        {
+            EventModel eventModel = _api.Events.GetEvent(id);
+
+            var bggClient = new BGGClient.BoardGameGeekClient();
+            var result = bggClient.GetGamesForUser(bggUserName);
+
+            if( result.Success )
+            {
+                var sb = new StringBuilder();
+                sb.Append($"<p>Successfully added {result.Games.Count} games.</p>");
+                sb.Append("<ul>");
+                foreach (var game in result.Games)
+                    sb.Append($"<li>{game.Name}</li>");
+                sb.Append("</ul>");
+
+                ViewBag.Message = sb.ToString();
+
+                if (eventModel.GameOptions == null)
+                    eventModel.GameOptions = new List<Game>();
+
+                foreach(var g in result.Games)
+                    eventModel.GameOptions.Add(g);
+
+                _api.Events.PutEvent(id, eventModel);
+            }
+            else
+            {
+                ViewBag.Message = $"Failed to add games for user:{bggUserName}. Error:{result.Error}";
             }
         }
     }
