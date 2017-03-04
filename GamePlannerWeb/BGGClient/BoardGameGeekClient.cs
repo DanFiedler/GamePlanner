@@ -14,9 +14,9 @@ namespace GamePlannerWeb.BGGClient
         public string Error { get; set; }
 
         public string UserName { get; set; }
-        public List<Models.Game> Games { get; set; }
-        
+        public List<int> Games { get; set; }
     }
+
     public class BoardGameGeekClient
     {
         private const string COLLECTION_API = "https://boardgamegeek.com/xmlapi2/collection?subtype=boardgame&own=1&username=";
@@ -35,9 +35,7 @@ namespace GamePlannerWeb.BGGClient
                 if( userCollectionResponse.IsSuccessStatusCode )
                 {
                     string userCollectionXml = GetContentAsString(userCollectionResponse.Content);
-                    List <int> gameIds = GetGameIdsForUserCollection(userCollectionXml);
-                    var gamesTask = GetDetailsForAndAddGamesToResults(httpClient, gameIds);
-                    result.Games = gamesTask.Result;
+                    result.Games = GetGameIdsForUserCollection(userCollectionXml);
                     result.Success = true;
                 }
                 else
@@ -85,23 +83,19 @@ namespace GamePlannerWeb.BGGClient
             return gameIds;
         }
 
-        private Task<List<Game>> GetDetailsForAndAddGamesToResults(HttpClient httpClient, List<int> gameIds)
+        public List<Game> GetDetailedGameList(List<int> gameIds)
         {
-            Task<List<Game>> t = Task.Factory.StartNew<List<Game>>(() =>
+            using (var httpClient = new HttpClient())
+            {
+                var gameList = new List<Game>();
+                foreach (int id in gameIds)
                 {
-                    var gameBag = new System.Collections.Concurrent.ConcurrentBag<Models.Game>();
-                    Parallel.ForEach(gameIds, (id) =>
-                    {
-                        Game game = GetDetailsForGame(httpClient, id);
-                        if (game != null)
-                            gameBag.Add(game);
-                    });
-
-                    var games = new List<Game>( gameBag.ToArray() );
-                    return games;
-                });
-
-            return t;
+                    Game game = GetDetailsForGame(httpClient, id);
+                    if (game != null)
+                        gameList.Add(game);
+                }
+                return gameList;
+            }
         }
 
         private Game GetDetailsForGame(HttpClient httpClient, int id)
