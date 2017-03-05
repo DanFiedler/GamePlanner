@@ -5,6 +5,15 @@ namespace GamePlannerModel
 {
     public class Game
     {
+        public Game() { }
+        public Game(int id, string name, int min, int max)
+        {
+            ID = id;
+            Name = name;
+            MinPlayer = min;
+            MaxPlayer = max;
+        }
+
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
 

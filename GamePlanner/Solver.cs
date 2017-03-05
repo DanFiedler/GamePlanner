@@ -16,8 +16,24 @@ namespace GamePlanner
 
             var potentialGames = CreateListOfPotentialGames(gameNight);
 
-            Solution solution = CreateSolution(gameNight, potentialGames, shuffleLists);
-            solutions.Add(solution);
+            int solutionCount = 1;
+            if (shuffleLists)
+                solutionCount = gameNight.Players.Count;
+
+            for (int i = 0; i < solutionCount; i++)
+            {
+                Debug.WriteLine("Creating Solution for Event. Iteration:"+i);
+                var sln = CreateSolution(gameNight, potentialGames, shuffleLists);
+                solutions.Add(sln);
+                Debug.WriteLine("Solution TotalSatisfaction:{0}; Avg:{1}; Mean:{2}", sln.TotalSatisfaction, sln.AverageSatisfaction, sln.MeanSatisfaction);
+                Debug.WriteLine("-------------------------------------------------");
+            }
+
+            if (solutions.Count > 1)
+            {
+                solutions.Sort((x, y) => x.MeanSatisfaction.CompareTo(y.MeanSatisfaction));
+                solutions.Reverse();
+            }
 
             return solutions;
         }
@@ -40,11 +56,6 @@ namespace GamePlanner
             {
                 Debug.WriteLine("Initial Assignment: " + a.ToString());
             }
-            if( players.Count > 0 )
-            {
-                throw new ArgumentException("Failed to assign all players to games in phase one. Remaining player count:" + players.Count);
-            }
-
 
             // phase 2 - foreach player, does a better match exist, if so switch to that game
             for (int i = 0; i < playerList.Count; i++)
@@ -78,7 +89,7 @@ namespace GamePlanner
             {
                 assignments[game.ID] = new GameAssignment() { Event = gameNight, Game = game, Players = new List<EventRegistration>() };
             }
-
+                            
             foreach (var game in potentialGames)
             {
                 for (int p = 0; p < players.Count; p++)
@@ -94,6 +105,11 @@ namespace GamePlanner
                         }
                     }
                 }
+            }
+
+            if (players.Count > 0)
+            {
+                throw new ArgumentException("Failed to assign all players to games in phase one. Remaining player count:" + players.Count);
             }
 
             return new List<GameAssignment>(assignments.Values);

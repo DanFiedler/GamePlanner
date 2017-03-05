@@ -1,5 +1,6 @@
 ﻿using GamePlannerModel;
 using System.Collections.Generic;
+using System.Text;
 
 namespace GamePlanner
 {
@@ -27,6 +28,19 @@ namespace GamePlanner
             }
 
             return true;
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendFormat("Solution Total Satisfaction:{0} Avg:{1} Mean:{2} {3}", TotalSatisfaction, AverageSatisfaction, MeanSatisfaction, System.Environment.NewLine);
+            foreach( var assignment in Assignments )
+            {
+                sb.AppendLine(assignment.ToString());
+            }
+            sb.AppendLine("--------------------");
+            return sb.ToString();
         }
     }
 }
