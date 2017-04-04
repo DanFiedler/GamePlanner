@@ -1,5 +1,7 @@
-﻿using System;
+﻿using GamePlannerMVC.Data;
+using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -16,6 +18,12 @@ namespace GamePlannerMVC
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            Database.SetInitializer(new DbInitializer());
+            using (var context = new GamePlannerContext())
+            {
+                context.Database.Initialize(false);
+            }
         }
     }
 }
